@@ -1,9 +1,8 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.buildConfig)
@@ -12,15 +11,25 @@ plugins {
 }
 
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    android {
+        compileSdk = BuildVersion.android.compileSdk
+        namespace = "${BuildVersion.environment.applicationId}.presentation.ui"
+        minSdk = BuildVersion.android.minSdk
+
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget = JvmTarget.fromTarget(BuildVersion.environment.jvmTarget)
+        }
+
+        androidResources {
+            enable = true
+        }
+
+        withHostTest {
+            isIncludeAndroidResources = true
         }
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach {
@@ -37,9 +46,8 @@ kotlin {
 
         androidMain {
             dependencies {
-                implementation(compose.uiTooling)
-                implementation(compose.preview)
-
+                implementation(libs.compose.uitooling)
+                implementation(libs.compose.multiplatform.ui.tooling.preview)
                 implementation(libs.bundles.android.core.ui)
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.ktor.client.okhttp.android)
@@ -47,19 +55,17 @@ kotlin {
         }
 
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.material3)
-            implementation(compose.materialIconsExtended)
-            implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.multiplatform.runtime)
+            implementation(libs.compose.multiplatform.material3)
+            implementation(libs.compose.multiplatform.material.icons)
+            implementation(libs.compose.multiplatform.ui.tooling.preview)
             implementation(libs.bundles.layer.core.ui)
-            implementation(compose.components.resources)
-
+            implementation(libs.compose.multiplatform.components.resources)
             implementation(projects.shared.core.ui)
             implementation(projects.shared.core.common)
             implementation(projects.shared.core.di)
             implementation(projects.shared.presentation.viewmodels)
             implementation(projects.shared.domain.models)
-
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -75,32 +81,8 @@ kotlin {
     }
 }
 
-android {
-    namespace = "${BuildVersion.environment.applicationId}.presentation.ui"
-    compileSdk = BuildVersion.android.compileSdk
-
-    sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
-
-    defaultConfig {
-        minSdk = BuildVersion.android.minSdk
-    }
-    sourceSets["main"].apply {
-        manifest.srcFile("src/androidMain/AndroidManifest.xml")
-        res.srcDirs("src/androidMain/resources")
-    }
-    compileOptions {
-        sourceCompatibility = BuildVersion.environment.javaVersion
-        targetCompatibility = BuildVersion.environment.javaVersion
-    }
-    buildFeatures {
-        compose = true
-    }
-
-    dependencies {
-        debugImplementation(compose.uiTooling)
-        debugImplementation(compose.preview)
-    }
+dependencies {
+    androidRuntimeClasspath(libs.compose.multiplatform.ui.tooling)
 }
 
 buildConfig {

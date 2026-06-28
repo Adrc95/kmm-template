@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
 }
@@ -31,9 +30,10 @@ android {
         sourceCompatibility = BuildVersion.environment.javaVersion
         targetCompatibility = BuildVersion.environment.javaVersion
     }
-    kotlinOptions {
-        jvmTarget = BuildVersion.environment.jvmTarget
-    }
+}
+
+configurations.configureEach {
+    exclude(group = "androidx.constraintlayout", module = "constraintlayout-core")
 }
 
 dependencies {
@@ -44,7 +44,7 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.runtime.android)
     implementation(libs.compose.material3)
-    implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.compose.multiplatform.ui.tooling.preview)
     implementation(libs.androidx.activityCompose)
     implementation(libs.bundles.android.core)
     debugImplementation(libs.compose.uitooling)
