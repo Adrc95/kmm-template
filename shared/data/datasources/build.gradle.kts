@@ -1,9 +1,8 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.com.google.ksp)
@@ -11,15 +10,17 @@ plugins {
 
 
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    android {
+        compileSdk = BuildVersion.android.compileSdk
+        namespace = "${BuildVersion.environment.applicationId}.data.datasources"
+        minSdk = BuildVersion.android.minSdk
+
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget = JvmTarget.fromTarget(BuildVersion.environment.jvmTarget)
         }
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach {
@@ -46,23 +47,6 @@ kotlin {
 
         iosMain.dependencies {
         }
-    }
-}
-
-android {
-    namespace = "${BuildVersion.environment.applicationId}.data.datasources"
-    compileSdk = BuildVersion.android.compileSdk
-    defaultConfig {
-        minSdk = BuildVersion.android.minSdk
-    }
-
-    sourceSets["main"].apply {
-        manifest.srcFile("src/androidMain/AndroidManifest.xml")
-        res.srcDirs("src/androidMain/resources")
-    }
-    compileOptions {
-        sourceCompatibility = BuildVersion.environment.javaVersion
-        targetCompatibility = BuildVersion.environment.javaVersion
     }
 }
 

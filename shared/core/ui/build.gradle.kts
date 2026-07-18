@@ -1,9 +1,8 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.kotlinxSerialization)
@@ -11,15 +10,17 @@ plugins {
     alias(libs.plugins.com.google.ksp)
 }
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    android {
+        compileSdk = BuildVersion.android.compileSdk
+        namespace = "${BuildVersion.environment.applicationId}.core.ui"
+        minSdk = BuildVersion.android.minSdk
+
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget = JvmTarget.fromTarget(BuildVersion.environment.jvmTarget)
         }
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach {
@@ -33,9 +34,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.shared.core.common)
-            implementation(compose.runtime)
-            implementation(compose.material3)
-            implementation(compose.materialIconsExtended)
+            implementation(libs.compose.multiplatform.runtime)
+            implementation(libs.compose.multiplatform.material3)
+            implementation(libs.compose.multiplatform.material.icons)
             implementation(libs.bundles.layer.core.ui)
         }
 
@@ -50,26 +51,6 @@ kotlin {
         iosMain.dependencies {
 
         }
-    }
-}
-
-android {
-    namespace = "${BuildVersion.environment.applicationId}.core.ui"
-    compileSdk = BuildVersion.android.compileSdk
-    defaultConfig {
-        minSdk = BuildVersion.android.minSdk
-    }
-
-    sourceSets["main"].apply {
-        manifest.srcFile("src/androidMain/AndroidManifest.xml")
-        res.srcDirs("src/androidMain/resources")
-    }
-    compileOptions {
-        sourceCompatibility = BuildVersion.environment.javaVersion
-        targetCompatibility = BuildVersion.environment.javaVersion
-    }
-    buildFeatures {
-        compose = true
     }
 }
 

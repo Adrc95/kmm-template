@@ -893,7 +893,7 @@ those changes.
 One of the few differences we have in the development in KMP with Compose Multiplatform with respect to the development
 of Android apps are the following:
 
-- We do not have ConstraintLayout (yet, 02/10/2024) officially, instead, the dependency for a
+- We do not have ConstraintLayout (yet, 28/06/2026) officially, instead, the dependency for a
   experimental implementation by [Samuel Gagarin](https://github.com/Lavmee/constraintlayout-compose-multiplatform) that
   provides us with ConstraintLayout.
 - Resources, since version 1.6.0 of compose multiplatform resources have been added to the system, so it is
